@@ -20,7 +20,21 @@
 #include <fstream>
 #include <string>
 
+#if defined(_MSVC_LANG)
+
+#endif
+
+#ifndef NO_BOOST
 #include "boost/filesystem.hpp"
+namespace filesystem = ::boost::filesystem;
+#else 
+#if ((defined(_MSVC_LANG) && _MSVC_LANG >= 201703L) || __cplusplus >= 201703L)
+#include <filesystem>
+namespace filesystem = ::std::filesystem;
+#else
+#error You need boost::filesystem or C++17 with filesystem support
+#endif
+#endif
 
 namespace Visqol {
 class FilePath {
@@ -30,15 +44,15 @@ class FilePath {
   FilePath(const FilePath &other) { path_ = other.path_; }
 
   FilePath(const std::string &path) {
-    path_ = ::boost::filesystem::path(path).string();
+    path_ = ::filesystem::path(path).string();
   }
 
   const std::string Path() const { return path_; }
 
-  bool Exists() const { return ::boost::filesystem::exists(path_); }
+  bool Exists() const { return ::filesystem::exists(path_); }
 
   static std::string currentWorkingDir() {
-    return ::boost::filesystem::current_path().string();
+    return ::filesystem::current_path().string();
   }
 
  private:
